@@ -29,5 +29,11 @@ If there are any checkpoints that the script created previously that are 29 days
 If you want to alter how long the backups are kept, change the number in this section of line 30: "(Get-Date).AddDays(-XX)"
 
 #>
-Get-VM | Checkpoint-VM -SnapshotName "Auto Checkpoint $((Get-Date).toshortdatestring())"
-Get-VMSnapshot -VMName * | Where-Object {$_.Name -Match "Auto Checkpoint*" -and $_.CreationTime -lt (Get-Date).AddDays(-29) } | Remove-VMSnapshot
+#define local variables
+$VMs = '*'
+$DaysKept = 29
+
+#Finds Selected VMs (All by default), creates checkpoints for all with the name "Auto Checkpoint" followed by the date.
+Get-VM $VMs | Checkpoint-VM -SnapshotName "Auto Checkpoint $((Get-Date).toshortdatestring())"
+#Finds all checkpoints from the selected VMs with the name that begins "Auto Checkpoint", and, if they're older than the date in the $DaysKept variable, it deletes them.
+Get-VMSnapshot -VMName $VMs | Where-Object {$_.Name -Match "Auto Checkpoint*" -and $_.CreationTime -lt (Get-Date).AddDays(-$DaysKept) } | Remove-VMSnapshot
